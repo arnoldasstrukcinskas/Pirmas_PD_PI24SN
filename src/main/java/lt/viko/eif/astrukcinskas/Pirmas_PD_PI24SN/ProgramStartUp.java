@@ -20,7 +20,7 @@ public class ProgramStartUp {
      * Metodas paleidžiantis duomenų serverį
      * @return Grąžinama statuso žinutė
      */
-    @GetMapping("/server_start")
+    @GetMapping("/serverStart")
     public ResponseEntity<String> startServer() {
         Thread serverThread = new Thread(){
             @Override

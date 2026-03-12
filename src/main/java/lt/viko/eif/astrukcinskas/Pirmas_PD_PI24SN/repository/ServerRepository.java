@@ -6,6 +6,8 @@ import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 import lt.viko.eif.astrukcinskas.Pirmas_PD_PI24SN.model.Drone;
 import lt.viko.eif.astrukcinskas.Pirmas_PD_PI24SN.model.DroneList;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 
@@ -32,6 +34,12 @@ public class ServerRepository {
             JAXBContext context = JAXBContext.newInstance(DroneList.class);
             Unmarshaller unmarshaller = context.createUnmarshaller();
 
+            // Code snipped for using docker(uncomment if needed)
+            // Resource resource = new ClassPathResource("data/drones.xml");
+            // unmarshaller.unmarshal(resource.getInputStream());
+            // DroneList droneList = (DroneList) unmarshaller.unmarshal(resource.getInputStream());
+
+            //Comment if u will use docker
             DroneList droneList = (DroneList) unmarshaller.unmarshal(file);
 
             return droneList;
