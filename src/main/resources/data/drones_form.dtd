@@ -1,0 +1,12 @@
+<!ELEMENT drones (drone*)>
+
+<!ELEMENT drone (droneName, batteryCapacity, price, droneNew, framsShape, isAutonomus, lastUpdateDate, managerName?)>
+
+<!ELEMENT droneName (#PCDATA)>
+<!ELEMENT batteryCapacity (#PCDATA)>
+<!ELEMENT price (#PCDATA)>
+<!ELEMENT droneNew (#PCDATA)>
+<!ELEMENT framsShape (#PCDATA)>
+<!ELEMENT isAutonomus (#PCDATA)>
+<!ELEMENT lastUpdateDate (#PCDATA)>
+<!ELEMENT managerName (#PCDATA)>
