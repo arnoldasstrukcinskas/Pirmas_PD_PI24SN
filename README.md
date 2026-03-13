@@ -98,11 +98,11 @@ docker-compose down
 ```bash
 http://localhost:8080/h2-console
 ```
-#### 2. Connect to database(Enter container ID or name)
+#### 2. Connect to database
 ```bash
-JDBC URL: http://localhost:8080/h2-console/login.jsp?jsessionid=3aaf8a0277f2faa50633cc880e28bcdb
---------------------------------
+JDBC URL: jdbc:h2:mem:testdb
 User name: sa
+--------------------------------
 (Password must be clear)
 ```
 
