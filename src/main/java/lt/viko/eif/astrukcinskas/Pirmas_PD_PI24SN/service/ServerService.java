@@ -17,38 +17,35 @@ import java.util.Scanner;
 @Service
 public class ServerService {
 
-    public ServerService(){
+    public ServerService() {
         System.out.println("Service created");
     }
 
     @Autowired
     private ServerRepository serverRepository;
-    boolean serverRunning = false;
 
     /**
      * Metodas, paleidžiantis duomenų serverį, komunikacijai su XML failu.
+     *
      * @throws IOException
      */
     public void launchServer() throws IOException {
         ServerSocket serverSocket = new ServerSocket(1234);
-        this.serverRunning = true;
         serverRepository.setFilePath("src/main/resources/data/drones.xml");
         System.out.println("Serveris paleistas, laukiamos uzklausos");
 
-        while (serverRunning) {
-            try {
-                Socket socket = serverSocket.accept();
-                System.out.println("serveris: Klientas prisijunge");
+        try {
+            Socket socket = serverSocket.accept();
+            System.out.println("serveris: Klientas prisijunge");
 
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                Scanner input = new Scanner(socket.getInputStream());
-
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            Scanner input = new Scanner(socket.getInputStream());
+            while (input.hasNextLine()) {
                 String request = input.nextLine();
-
-                if (request.contains("add")){
+                if (request.contains("add")) {
                     String response = addDroneToXml(input);
                     sendData(response, out);
-                } else if (request.contains("update")){
+                } else if (request.contains("update")) {
                     String[] requestParts = request.split("/");
                     String droneName = new String(requestParts[1]);
                     String response = updateDroneInXml(input, droneName);
@@ -67,24 +64,24 @@ public class ServerService {
                     Drone drone = getDroneFromXmlByName(droneName);
                     sendData(drone, out);
                 } else if (request.contains("byprice")) {
-                    String [] requestParts = request.split("/");
+                    String[] requestParts = request.split("/");
                     String dronePrice = new String(requestParts[1]);
                     System.out.println(dronePrice);
                     List<Drone> response = getDroneFromXmlByPrice(dronePrice);
                     sendData(response, out);
                 } else if (request.equals("all")) {
                     List<Drone> drones = serverRepository.getAllDrones().getDrones();
+                    System.out.println("pasitrigerino");
                     sendData(drones, out);
                 } else {
                     out.println("Error");
-                    serverSocket = new ServerSocket(1234);
                 }
-
-                socket.close();
-
-            } catch (IOException e) {
-                System.out.println("Service klaida");
             }
+
+            socket.close();
+
+        } catch (IOException e) {
+            System.out.println("Service klaida");
         }
 
         serverSocket.close();
@@ -92,8 +89,9 @@ public class ServerService {
 
     /**
      * Metodas, per socket jugntį, siunčiantis duomenis į dronų valdymo failą(DroneService)
+     *
      * @param response siunčiami duomenys
-     * @param out Duomenų išsiuntimo srautas, perduodantis duomenis iš serverio - klientui
+     * @param out      Duomenų išsiuntimo srautas, perduodantis duomenis iš serverio - klientui
      * @throws IOException
      */
     private void sendData(Object response, PrintWriter out) throws IOException {
@@ -105,24 +103,23 @@ public class ServerService {
 
     /**
      * Metodas įrašantis droną į xml failą.
+     *
      * @param input Duomenų įvesties srautas, gaunantis duomenis iš kliento - serveriui.
      * @return Tekstinį pranešimą: sėkmės atveju grąžinama patvirtinimo žinutė iš repozitorijos,
      * o jei dronas jau egzistuoja arba įvyksta klaida – pranešimas apie nesėkmę.
      */
 
-    public String addDroneToXml(Scanner input){
+    public String addDroneToXml(Scanner input) {
         ObjectMapper objectMapper = new ObjectMapper();
 
         String droneJson = input.nextLine();
         Drone drone = objectMapper.readValue(droneJson, Drone.class);
         List<Drone> drones = serverRepository.getAllDrones().getDrones();
-        if (drones == null)
-        {
+        if (drones == null) {
             drones = new ArrayList<>();
         }
 
-        if (!drones.contains(drone))
-        {
+        if (!drones.contains(drone)) {
             drones.add(drone);
 
             return serverRepository.writeAllDronesToFile(drones);
@@ -134,7 +131,8 @@ public class ServerService {
 
     /**
      * Metodas atnaujinantis drono duomenis XML faile
-     * @param input Duomenų įvesties srautas, gaunantis duomenis iš kliento - serveriui.
+     *
+     * @param input     Duomenų įvesties srautas, gaunantis duomenis iš kliento - serveriui.
      * @param droneName drono kuris turi būti atnaujinamas - pranešimas.
      * @return Tekstinį pranešimą: sėkmės atveju grąžinama patvirtinimo žinutė iš repozitorijos,
      * o jei dronas jau egzistuoja arba įvyksta klaida – pranešimas apie nesėkmę.
@@ -147,8 +145,8 @@ public class ServerService {
         List<Drone> drones = serverRepository.getAllDrones().getDrones();
         int droneIndex = 0;
 
-        for (Drone drone : drones){
-            if(drone.getDroneName().equals(droneName)){
+        for (Drone drone : drones) {
+            if (drone.getDroneName().equals(droneName)) {
                 drones.set(droneIndex, responseDrone);
                 return serverRepository.writeAllDronesToFile(drones);
             }
@@ -159,15 +157,16 @@ public class ServerService {
 
     /**
      * Metodas, pašalinantis norimą droną iš XML failo
+     *
      * @param droneName norimo pašalinto drono pavadinimas
      * @return Tekstinį pranešimą: sėkmės atveju grąžinama patvirtinimo žinutė iš repozitorijos,
      * o jei dronas jau egzistuoja arba įvyksta klaida – pranešimas apie nesėkmę.
      */
-    public String deleteDroneFromXml(String droneName){
+    public String deleteDroneFromXml(String droneName) {
         List<Drone> drones = serverRepository.getAllDrones().getDrones();
 
-        for(Drone drone : drones){
-            if(drone.getDroneName().equals(droneName)){
+        for (Drone drone : drones) {
+            if (drone.getDroneName().equals(droneName)) {
                 drones.remove(drone);
 
                 return serverRepository.writeAllDronesToFile(drones);
@@ -179,6 +178,7 @@ public class ServerService {
 
     /**
      * Perkelia dronus iš duomenų bazės į XML failą.
+     *
      * @param input Duomenų įvesties srautas, gaunantis duomenis iš kliento - serveriui.
      * @return Gražina pridėtų į XML failą dronų sąrašą.
      */
@@ -191,8 +191,8 @@ public class ServerService {
 
         List<Drone> addedDrones = new ArrayList<>();
         List<Drone> dronesInXml = serverRepository.getAllDrones().getDrones();
-        for(Drone drone : requestDrones) {
-            if (!dronesInXml.contains(drone)){
+        for (Drone drone : requestDrones) {
+            if (!dronesInXml.contains(drone)) {
                 addedDrones.add(drone);
             }
         }
@@ -203,12 +203,13 @@ public class ServerService {
 
     /**
      * Metodas, surandantis droną pagal pavadinimą XML faile.
+     *
      * @param droneName norimo rasti drono pavadinimas.
      * @return Sėkmės atveju rasto drono objektas, nesėkmės - null reikšmė
      */
-    public Drone getDroneFromXmlByName(String droneName){
+    public Drone getDroneFromXmlByName(String droneName) {
         List<Drone> dronesInXml = serverRepository.getAllDrones().getDrones();
-        for(Drone drone : dronesInXml) {
+        for (Drone drone : dronesInXml) {
             if (drone.getDroneName().equals(droneName)) {
                 return drone;
             }
@@ -218,17 +219,18 @@ public class ServerService {
 
     /**
      * Metodas, visus dronus su didesne kaina nei nurodyta.
+     *
      * @param price norimo rasti drono kaina.
      * @return Sugąžina rastų dronų sąrašą.
      */
-    public List<Drone> getDroneFromXmlByPrice(String price){
+    public List<Drone> getDroneFromXmlByPrice(String price) {
         List<Drone> dronesInXml = serverRepository.getAllDrones().getDrones();
 
         List<Drone> sortedDrones = new ArrayList<>();
 
         double dronePrice = Double.valueOf(price);
-        for(Drone drone : dronesInXml) {
-            if(drone.getPrice() >= dronePrice){
+        for (Drone drone : dronesInXml) {
+            if (drone.getPrice() >= dronePrice) {
                 sortedDrones.add(drone);
             }
         }

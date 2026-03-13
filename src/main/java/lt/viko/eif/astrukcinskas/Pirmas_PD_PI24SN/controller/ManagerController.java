@@ -53,7 +53,7 @@ public class ManagerController {
         try {
             response = managerService.login(username, password);
             loggedManager = managerService.findManagerByUserName(username);
-        } catch (AuthException e) {
+        } catch (AuthException | IOException e) {
 
             return ResponseEntity.badRequest().body(e.getMessage());
         }

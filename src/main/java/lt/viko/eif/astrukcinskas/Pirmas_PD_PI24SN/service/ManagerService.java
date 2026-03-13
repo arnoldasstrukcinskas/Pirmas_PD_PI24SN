@@ -22,10 +22,10 @@ public class ManagerService {
     @Autowired
     private DroneService droneService;
 
-    String host = "localhost";
-    int port = 1234;
-    InetSocketAddress address = new InetSocketAddress(host, port);
-
+    private String host = "localhost";
+    private int port = 1234;
+    private InetSocketAddress address = new InetSocketAddress(host, port);
+    private Socket socket = new Socket();
     /**
      * Metodas užregistruojantis vartotoją duomenų bazėje
      * @param manager Vartotojo objektas
@@ -44,10 +44,11 @@ public class ManagerService {
      * @return Grąžinamas prijungto vartotojo slaptažodis
      * @throws LoginException
      */
-    public String login(String username, String password) throws LoginException {
+    public String login(String username, String password) throws LoginException, IOException {
         Manager manager = managerRepository.findByUsername(username);
 
         if (password.equals(manager.getPassword())){
+            socket.connect(address);
             return "Logged in: " + manager.getUsername();
         } else {
             throw new LoginException("Failed to login");
@@ -135,10 +136,7 @@ public class ManagerService {
      * @throws IOException
      */
     public String createDroneInXml(DroneDTO droneDto) throws IOException {
-        Socket socket = new Socket();
-        socket.connect(address);
-
-        return droneService.addDroneToXML(droneDto, socket);
+        return droneService.addDroneToXML(droneDto, this.socket);
     }
 
     /**
@@ -150,10 +148,7 @@ public class ManagerService {
      * @throws IOException
      */
     public String updateDroneInXml(String droneName, DroneDTO droneDTO) throws IOException {
-        Socket socket = new Socket();
-        socket.connect(address);
-
-        return droneService.updateDroneInXML(droneName, droneDTO, socket);
+        return droneService.updateDroneInXML(droneName, droneDTO, this.socket);
     }
 
     /**
@@ -163,9 +158,7 @@ public class ManagerService {
      * @throws IOException
      */
     public String deleteDroneFromXml(String droneName) throws IOException{
-        Socket socket = new Socket();
-        socket.connect(address);
-        return droneService.deleteDroneInXML(droneName, socket);
+        return droneService.deleteDroneInXML(droneName, this.socket);
     }
 
     /**
@@ -174,9 +167,7 @@ public class ManagerService {
      * @throws IOException
      */
     public List<Drone> getAllDronesFromXml() throws IOException {
-        Socket socket = new Socket();
-        socket.connect(address);
-        return droneService.getAllDronesFromXML(socket);
+        return droneService.getAllDronesFromXML(this.socket);
     }
 
     /**
@@ -186,9 +177,7 @@ public class ManagerService {
      * @throws IOException
      */
     public List<Drone> moveDronesFromDbToXml() throws IOException {
-        Socket socket = new Socket();
-        socket.connect(address);
-        return droneService.moveDronesFromDbToXml(socket);
+        return droneService.moveDronesFromDbToXml(this.socket);
     }
 
     /**
@@ -199,9 +188,7 @@ public class ManagerService {
      * @throws IOException
      */
     public Drone getDroneFromXMlByName(String name) throws IOException {
-        Socket socket = new Socket();
-        socket.connect(address);
-        Drone response = droneService.getDroneFromXmlByName(name, socket);
+        Drone response = droneService.getDroneFromXmlByName(name, this.socket);
 
         if (response == null) {
             throw new RuntimeException("Manager service: failed to get drone by name: " + name);
@@ -218,9 +205,7 @@ public class ManagerService {
      * @throws IOException
      */
     public List<Drone> getDroneFromXmlByPrice(double price) throws IOException {
-        Socket socket = new Socket();
-        socket.connect(address);
-        List<Drone> response = droneService.getDrobeFromXmlByPrice(price, socket);
+        List<Drone> response = droneService.getDrobeFromXmlByPrice(price, this.socket);
 
         if (response == null){
             throw new RuntimeException("Manager  service: failed to get drone by price: " + String.valueOf(price));
