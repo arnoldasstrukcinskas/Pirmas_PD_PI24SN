@@ -113,7 +113,8 @@ User name: sa
 ```bash
   Go to: [http://localhost:808/login](http://localhost:8080/swagger-ui/index.html)
 ```
-##### FOR TESTING YUO WILL HAVE TO REGISTER(/register), LOGIN(/login) AND START SERVER(/serverStart).
+##### FOR TESTINS FIRSTLY YOU HAVE TO START SERVER(/serverStart)
+##### FOR FURTHER TESTING YUO WILL HAVE TO REGISTER(/register) AND THEN LOGIN(/login)
 #### 3. Last bot not least
 ```bash
 HAVE FUN!
